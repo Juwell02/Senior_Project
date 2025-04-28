@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CAT Building Kiosk</title>
+<link href="fullcalendar-6.1.17/dist/index.global.min.css" rel="stylesheet" />
+<script src="fullcalendar-6.1.17/dist/index.global.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f2f4f7;
+  }
+
+  h1 {
+    background-color: #0078D7;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+  }
+
+  .tabs, .subtabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tab, .subtab {
+    margin: 5px 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    background-color: #f7f7f7;
+    color: #333;
+    transition: all 0.3s ease;
+  }
+
+  .tab:hover, .subtab:hover {
+    background-color: #e0e0e0;
+  }
+
+  .tab.active, .subtab.active {
+    background-color: #333;
+    color: #fff;
+    border-bottom: 3px solid #0078D7;
+  }
+
+  .tab-content, .subtab-content {
+    display: none;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .tab-content.active, .subtab-content.active {
+    display: block;
+  }
+
+ 
+  .tab-content:not(.active) .subtabs,
+  .tab-content:not(.active) .subtab-content {
+    display: none;
+  }
+
+  .floor-map {
+    position: relative;
+    max-width: 1000px;
+    margin: 20px auto;
+  }
+
+  .floor-map img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+  }
+
+  .room {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: #d79e00;
+    border: 2px solid #444;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 1;
+  }
+
+  .room:hover {
+    transform: scale(1.05);
+    z-index: 20;
+  }
+
+  .tooltip {
+    display: none;
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    white-space: nowrap;
+    z-index: 30;
+    pointer-events: none;
+  }
+
+  .room:hover .tooltip {
+    display: block;
+  }
+
+  .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .calendar-table th, .calendar-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+  }
+
+  .calendar-table th {
+    background-color: #0078D7;
+    color: white;
+  }
+
+  .calendar-table td {
+    background-color: #f9f9f9;
+  }
+
+  .calendar-table tr:hover td {
+    background-color: #eef5ff;
+  }
+
+  #departments {
+    background: url('Cat_Sign.png') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5);
+  }
+
+  #departments h2, #departments p {
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+  }
+
+  .reserved {
+    background-color: #004080;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  #navigation {
+    background: url('Cat_Sign.png') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    padding: 40px 20px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  #navigation::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+    z-index: 0;
+  }
+
+  #navigation > * {
+    position: relative;
+    z-index: 1;
+    color: white;
+  }
+
+  #navigation h2, #navigation h3 {
+    color: #fff;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  #first-floor-faculty, #second-floor-faculty {
+    background: linear-gradient(to bottom right, #e0f0ff, #f9f9f9);
+    padding: 40px 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+
+  .faculty-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .faculty-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    width: 220px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .faculty-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #0078D7;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+  }
+
+  .faculty-item img:hover {
+    transform: scale(1.08);
+  }
+
+  .faculty-item h3 {
+    color: #003366;
+    margin: 10px 0 5px;
+    font-size: 1.1rem;
+  }
+
+  .faculty-item p {
+    color: #666;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .welcome-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+    padding-top: 20px;
+    background: url('WSC-CAT-10.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    color: white;
+    overflow: hidden;
+  }
+
+  .welcome-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    z-index: 0;
+  }
+
+  .welcome-text {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    padding: 30px 60px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+  }
+
+  .welcome-text h2 {
+    font-size: 4.5rem;
+    margin: 0 0 20px 0;
+  }
+
+  .welcome-text p {
+    font-size: 1.4rem;
+    margin: 0;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <h1>CAT Building Kiosk</h1>
+  <div class="container">
+<div class="tabs">
+  <div class="tab active" data-target="welcome">Welcome</div>
+  <div class="tab" data-target="navigation">Navigation</div>
+  <div class="tab" data-target="events">Scheduled Events</div>
+  <div class="tab" data-target="schedule">Room Utilization Schedule</div>
+  <div class="tab" data-target="departments">History</div>
+  <div class="tab" data-target="faculty">Faculty Directory</div>
+</div>
+      
+      
+      <div class="tab-content active" id="welcome">
+  <div class="welcome-container">
+    <div class="welcome-text">
+      <h2>Welcome to the Wayne State CAT Center</h2>
+      <p>We are excited to have you explore our state-of-the-art facilities</p>
+    </div>
+  </div>
+</div>
+
+    <div class="tab-content" id="navigation">
+      <h2>Building Navigation</h2>
+      <div class="subtabs">
+        <div class="subtab active" data-target="first-floor">First Floor</div>
+        <div class="subtab" data-target="second-floor">Second Floor</div>
+      </div>
+
+      <div class="subtab-content active" id="first-floor">
+        <h3>First Floor</h3>
+        <div class="floor-map">
+          <img src="CT101_first_floor.png" alt="First Floor" />
+             
+  <div class="room" style="top: 225px; left: 630px;">1<div class="tooltip">Drafting Lab</div></div>
+  <div class="room" style="top: 80px; left: 280px;">13<div class="tooltip">Bathrooms</div></div>
+  <div class="room" style="top: 140px; left: 440px;">7<div class="tooltip">Lounge</div></div>
+  <div class="room" style="top: 300px; left: 280px;">10<div class="tooltip">Storage</div></div>
+  <div class="room" style="top: 470px; left: 210px;">5<div class="tooltip">Classroom</div></div>
+  <div class="room" style="top: 285px; left: 235px;">16<div class="tooltip">Electrical room</div></div>
+  <div class="room" style="top: 1020px; left: 450px;">7<div class="tooltip">lounge</div></div>
+  <div class="room" style="top: 470px; left: 570px;">8<div class="tooltip">Equipment Center</div></div>
+  <div class="room" style="top: 285px; left: 160px;">14<div class="tooltip">Tools Room</div></div>
+  <div class="room" style="top: 620px; left: 200px;">10<div class="tooltip">Conference Room</div></div>
+  <div class="room" style="top: 353px; left: 800px;">3<div class="tooltip">Construction</div></div>
+  <div class="room" style="top: 560px; left: 665px;">2<div class="tooltip">Manufacturing Locker</div></div>
+  <div class="room" style="top: 1040px; left: 718px;">15<div class="tooltip">Tank Storage</div></div>
+  <div class="room" style="top: 1040px; left: 660px;">16<div class="tooltip">Electric room</div></div>
+  <div class="room" style="top: 885px; left: 700px;">6<div class="tooltip">Welding locker</div></div>
+  <div class="room" style="top: 940px; left: 800px;">3<div class="tooltip">construction</div></div>
+  <div class="room" style="top: 570px; left: 420px;">7<div class="tooltip">lounge</div></div>
+  <div class="room" style="top: 1040px; left: 605px;">15<div class="tooltip">Tank Storage</div></div>
+  <div class="room" style="top: 1040px; left: 290px;">17<div class="tooltip">Mechanical room</div></div>
+  <div class="room" style="top: 1040px; left: 545px;">17<div class="tooltip">Mechanical room</div></div>
+   <div class="room" style="top: 700px; left: 620px;">5<div class="tooltip">Classroom</div></div>
+  <div class="room" style="top: 850px; left: 590px;">10<div class="tooltip">Storage</div></div>
+<div class="room" style="top: 850px; left: 590px;">10<div class="tooltip">Storage</div></div>
+            <div class="room" style="top: 845px; left: 155px;">4<div class="tooltip">office</div></div>
+             <div class="room" style="top: 900px; left: 155px;">4<div class="tooltip">office</div></div>
+             <div class="room" style="top: 780px; left: 155px;">4<div class="tooltip">office</div></div>
+             <div class="room" style="top: 820px; left: 275px;">4<div class="tooltip">office</div></div>
+             <div class="room" style="top: 900px; left: 270px;">4<div class="tooltip">office</div></div>
+             <div class="room" style="top: 690px; left: 285px;">9<div class="tooltip">Reception</div></div>
+            <div class="room" style="top: 700px; left: 155px;">4<div class="tooltip">office</div></div>
+            <div class="room" style="top: 930px; left: 35px;">3<div class="tooltip">construction</div></div>
+            <div class="room" style="top: 350px; left: 35px;">3<div class="tooltip">construction</div></div>
+            
+            
+    
+    
+        </div>
+      </div>
+
+      <div class="subtab-content" id="second-floor">
+        <h3>Second Floor</h3>
+        <div class="floor-map">
+          <img src="floorplan.png" alt="Second Floor" />
+          <div class="room" style="top: 260px; left: 280px;">1<div class="tooltip">Robotics lab</div></div>
+          <div class="room" style="top: 480px; left: 200px;">13<div class="tooltip">Bathrooms</div></div>
+          <div class="room" style="top: 370px; left: 280px;">7<div class="tooltip">Lounge</div></div>
+            <div class="room" style="top: 380px; left: 760px;">7<div class="tooltip">Lounge</div></div>
+            <div class="room" style="top: 530px; left: 360px;">7<div class="tooltip">Lounge</div></div>
+            <div class="room" style="top: 530px; left: 550px;">4<div class="tooltip">office</div></div>
+            <div class="room" style="top: 560px; left: 740px;">4<div class="tooltip">classroom</div></div>
+          <div class="room" style="top: 70px; left: 580px;">5<div class="tooltip">Storage</div></div>
+          <div class="room" style="top: 257px; left: 500px;">2<div class="tooltip">Computer lab</div></div>
+          <div class="room" style="top: 260px; left: 730px;">3<div class="tooltip">Hardware Lab</div></div>
+          <div class="room" style="top: 720px; left: 500px;">5<div class="tooltip">Storage</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="events">
+      <h2>Scheduled Events</h2>
+        <div id="calendar" style="margin-top: 20px;"></div>
+      
+    </div>
+
+    <div class="tab-content" id="schedule">
+  <h2>Room Utilization Schedule</h2>
+
+  <!-- Subtabs -->
+  <div class="subtabs">
+    <div class="subtab active" data-target="first-floor-schedule">First Floor</div>
+    <div class="subtab" data-target="second-floor-schedule">Second Floor</div>
+  </div>
+
+  <!-- First Floor Schedule -->
+  <div class="subtab-content active" id="first-floor-schedule">
+    <label for="floor1RoomSelect">Select Room:</label>
+    <select id="floor1RoomSelect" style="margin: 10px;">
+<option value="" disabled selected>Select a Room</option>
+<option value="Drafting Lab">Drafting Lab</option>
+<option value="Classroom">Classroom</option>
+<option value="Equipment Center">Equipment Center</option>
+<option value="Tools Room">Tools Room</option>
+<option value="Tank Storage">Tank Storage</option>
+<option value="Electrical Room">Electrical Room</option>
+<option value="Mechanical Room">Mechanical Room</option>
+</select>
+
+    <!-- Shows Room Name -->
+    <h3 id="floor1RoomName"></h3>
+
+    <table class="calendar-table" style="margin-top: 20px;">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="floor1ScheduleBody">
+        <!-- Dynamic content -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Second Floor Schedule -->
+  <div class="subtab-content" id="second-floor-schedule">
+    <label for="floor2RoomSelect">Select Room:</label>
+    <select id="floor2RoomSelect" style="margin: 10px;">
+      <option value="" disabled selected>Select a Room</option>
+      <option value="Robotics Lab">Robotics Lab</option>
+      <option value="Computer Lab">Computer Lab</option>
+      <option value="Hardware Lab">Hardware Lab</option>
+     
+    </select>
+
+    <!-- Shows Room Name -->
+    <h3 id="floor2RoomName"></h3>
+
+    <table class="calendar-table" style="margin-top: 20px;">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="floor2ScheduleBody">
+        <!-- Dynamic content -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+    <div class="tab-content" id="departments">
+      <h2>History</h2>
+     <p> The Center for Applied Technology (CAT) at Wayne State College (WSC) represents a significant investment in the future of industrial technology education within Northeast Nebraska. Officially opening for classes in January 2019, the CAT was conceived to directly address the growing demand for skilled professionals in a variety of technical fields. This state-of-the-art facility is designed to provide students with comprehensive training and hands-on experience in areas crucial to modern industry, including industrial technology education, manufacturing, construction and safety management, drafting, engineering, and computer sciences.  </p>
+    <p>Central to the CAT's mission is its commitment to bridging the gap between academic learning and real-world application. The center features modern, technology-driven classrooms and instructional labs equipped with industry-standard equipment. This allows students to gain practical skills and familiarity with the technologies they will encounter in their future careers. Beyond its role in student education, the CAT also serves as a vital resource for the broader Northeast Nebraska community. It provides management training for industry professionals, supports employee development, and fosters small business entrepreneurship in manufacturing. Furthermore, the center engages in applied research in collaboration with industry partners, ensuring that its curriculum remains relevant and aligned with current industry needs. The CAT also functions as a career academy for area high school students, introducing them to the diverse and rewarding career paths available in industrial technology.</p>
+        <p>The physical infrastructure of the CAT is a testament to its commitment to cutting-edge education. The facility houses specialized labs dedicated to a wide range of disciplines, including drafting and design, manufacturing, welding, power and energy, construction and woodworking, robotics, computing and networking, and mechatronics. Each lab is designed to provide students with hands-on experience, allowing them to develop the practical skills necessary to succeed in their chosen fields. By combining modern facilities, industry partnerships, and a focus on practical application, the Center for Applied Technology at Wayne State College plays a crucial role in preparing the next generation of industrial technology professionals and contributing to the economic development of Northeast Nebraska.
+</p>
+    </div>
+      <!-- Faculty Directory -->
+<div class="tab-content" id="faculty">
+  <h2>Faculty Directory</h2>
+  <div class="subtabs">
+    <div class="subtab active" data-target="first-floor-faculty">First Floor Faculty</div>
+    <div class="subtab" data-target="second-floor-faculty">Second Floor Faculty</div>
+  </div>
+
+  <div class="subtab-content active" id="first-floor-faculty">
+    <ul class="faculty-list">
+      <li class="faculty-item">
+        <img src="Professors/JessiePiper.jpg" alt="Jessie Piper">
+        <h3>Jessie Piper, MSE</h3>
+        <p>Instructor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/GrantSchrick.jpg" alt="Grant Schrick">
+        <h3>Grant Schrick, MSE</h3>
+        <p>Instructor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/JeffAllen.jpg" alt="Jeff Allen">
+        <h3>Jeff Allen, Ed.D.</h3>
+        <p>Professor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/ErinArneson.jpg" alt="Erin Arneson">
+        <h3>Erin Arneson, Ph.D.</h3>
+        <p>Assistant Professor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/DavidHix.jpg" alt="David Hix">
+        <h3>David Hix, MSE</h3>
+        <p>Instructor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/AlLindsay.jpg" alt="Al Lindsay">
+        <h3>Al Lindsay, MSE</h3>
+        <p>Instructor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/DanMitchell.jpg" alt="Dan Mitchell">
+        <h3>Dan Mitchell, MSE</h3>
+        <p>Instructor</p>
+      </li>
+    </ul>
+  </div>
+
+  <div class="subtab-content" id="second-floor-faculty">
+    <ul class="faculty-list">
+      <li class="faculty-item">
+        <img src="Professors/JeremyWynia.jpg" alt="Jeremy Wynia">
+        <h3>Jeremy Wynia, MSOM</h3>
+        <p>Instructor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/MollyCurnyn.jpg" alt="Molly Curnyn">
+        <h3>Molly Curnyn, Ed.D.</h3>
+        <p>Professor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/TimothyGarvin.jpg" alt="Timothy Garvin">
+        <h3>Timothy Garvin, Ph.D.</h3>
+        <p>Professor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/DebbieJohnson.jpg" alt="Debbie Johnson">
+        <h3>Debbie Johnson, MSOM</h3>
+        <p>Instructor</p>
+      </li>
+      <li class="faculty-item">
+        <img src="Professors/LoriNicholson.jpg" alt="Lori Nicholson">
+        <h3>Lori Nicholson, Ph.D.</h3>
+        <p>Professor</p>
+      </li>
+    </ul>
+  </div>
+</div>
+      
+  </div>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Tabs setup
+  const tabs = document.querySelectorAll('.tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tabContents.forEach(tc => tc.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.target).classList.add('active');
+
+      if (tab.dataset.target === "events" && window.calendar) {
+        setTimeout(() => {
+          window.calendar.render();
+        }, 50);
+      }
+    });
+  });
+
+  // Subtabs setup
+  const subtabs = document.querySelectorAll('.subtab');
+  const subtabContents = document.querySelectorAll('.subtab-content');
+
+  subtabs.forEach(subtab => {
+    subtab.addEventListener('click', () => {
+      const parentTabContent = subtab.closest('.tab-content');
+      const subtabGroup = parentTabContent.querySelectorAll('.subtab');
+      const subtabContentGroup = parentTabContent.querySelectorAll('.subtab-content');
+
+      subtabGroup.forEach(st => st.classList.remove('active'));
+      subtabContentGroup.forEach(sc => sc.classList.remove('active'));
+
+      subtab.classList.add('active');
+      parentTabContent.querySelector(`#${subtab.dataset.target}`).classList.add('active');
+    });
+  });
+
+  // FullCalendar setup
+  const calendarEl = document.getElementById('calendar');
+  if (calendarEl) {
+    const tooltip = document.createElement('div');
+    tooltip.style.position = 'absolute';
+    tooltip.style.padding = '8px 12px';
+    tooltip.style.background = 'rgba(0,0,0,0.75)';
+    tooltip.style.color = 'white';
+    tooltip.style.borderRadius = '8px';
+    tooltip.style.fontSize = '0.85rem';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.whiteSpace = 'nowrap';
+    tooltip.style.zIndex = '1000';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
+
+    window.calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      events: [
+        { title: 'Honors Colloquium Presentations (May 1)', start: '2025-05-01T00:00:00', end: '2025-05-01T01:00:00' },
+        { title: 'PRIDE Club Drag Show', start: '2025-05-01T18:30:00', end: '2025-05-01T19:30:00' },
+        { title: 'Honors Colloquium Presentations (May 2)', start: '2025-05-02T00:00:00', end: '2025-05-02T01:00:00' }
+      ],
+      eventDidMount: function (info) {
+        info.el.addEventListener('mouseenter', function (e) {
+          tooltip.innerHTML = info.event.title;
+          tooltip.style.display = 'block';
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.top = (e.pageY + 10) + 'px';
+        });
+        info.el.addEventListener('mousemove', function (e) {
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.top = (e.pageY + 10) + 'px';
+        });
+        info.el.addEventListener('mouseleave', function () {
+          tooltip.style.display = 'none';
+        });
+      }
+    });
+
+    window.calendar.render();
+  }
+
+  // Room Utilization Schedule setup
+  const floor1Schedule = {
+    "Drafting Lab": {
+      "9 AM": "Reserved",
+      "10 AM": "Drafting Class",
+      "1 PM": "CAD Workshop"
+    },
+    "Classroom": {
+      "8 AM": "Safety Training",
+      "10 AM": "Manufacturing Basics",
+      "2 PM": "Reserved"
+    },
+    "Equipment Center": {
+      "7 AM": "Maintenance",
+      "12 PM": "Inventory Check"
+    },
+    "Tools Room": {
+      "9 AM": "Tool Checkout",
+      "11 AM": "Reserved"
+    },
+    "Electrical Room": {
+      "10 AM": "Equipment Inspection"
+    },
+    "Mechanical Room": {
+      "8 AM": "System Testing",
+      "3 PM": "Scheduled Maintenance"
+    }
+  };
+
+  const floor2Schedule = {
+    "Robotics Lab": {
+      "9 AM": "Robotics Class",
+      "11 AM": "Robot Assembly",
+      "2 PM": "Reserved"
+    },
+    "Computer Lab": {
+      "8 AM": "Intro to Computing",
+      "1 PM": "Web Development Lab",
+      "4 PM": "Reserved"
+    },
+    "Hardware Lab": {
+      "10 AM": "Circuit Design",
+      "3 PM": "Hardware Testing"
+    }
+  };
+
+  const times = [
+    '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM',
+    '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'
+  ];
+
+  function fillSchedule(dropdownId, tableBodyId, schedule, roomNameId) {
+    const dropdown = document.getElementById(dropdownId);
+    const tableBody = document.getElementById(tableBodyId);
+    const roomNameHeading = document.getElementById(roomNameId);
+
+    dropdown.addEventListener('change', function () {
+      const selected = dropdown.value;
+      const roomData = schedule[selected];
+      tableBody.innerHTML = '';
+
+      roomNameHeading.textContent = selected;
+
+      times.forEach(time => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${time}</td><td>${roomData && roomData[time] ? roomData[time] : ''}</td>`;
+        tableBody.appendChild(tr);
+      });
+    });
+  }
+
+  fillSchedule('floor1RoomSelect', 'floor1ScheduleBody', floor1Schedule, 'floor1RoomName');
+  fillSchedule('floor2RoomSelect', 'floor2ScheduleBody', floor2Schedule, 'floor2RoomName');
+});
+</script>
+
+
+</body>
+</html>
