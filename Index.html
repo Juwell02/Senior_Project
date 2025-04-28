@@ -624,9 +624,29 @@ document.addEventListener('DOMContentLoaded', function () {
     window.calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
       events: [
+        // May 2025
         { title: 'Honors Colloquium Presentations (May 1)', start: '2025-05-01T00:00:00', end: '2025-05-01T01:00:00' },
         { title: 'PRIDE Club Drag Show', start: '2025-05-01T18:30:00', end: '2025-05-01T19:30:00' },
-        { title: 'Honors Colloquium Presentations (May 2)', start: '2025-05-02T00:00:00', end: '2025-05-02T01:00:00' }
+        { title: 'Honors Colloquium Presentations (May 2)', start: '2025-05-02T00:00:00', end: '2025-05-02T01:00:00' },
+        { title: 'Honors Colloquium Presentation (May 4)', start: '2025-05-04T00:00:00', end: '2025-05-04T01:00:00' },
+        { title: 'Tuition and Fees Due for May 2025 Sessions', start: '2025-05-13T00:00:00', end: '2025-05-13T01:00:00' },
+        { title: 'Beach Volleyball Camp: Pairs Challenge (May 30)', start: '2025-05-30T00:00:00', end: '2025-05-30T01:00:00' },
+        { title: 'Testing Event', start: '2025-06-01T00:00:00', end: '2025-06-01T01:00:00' },
+        // June 2025
+        { title: 'June 2025 Sessions Begin', start: '2025-06-02T00:00:00', end: '2025-06-02T01:00:00' },
+        { title: 'Tuition and Fees Due for June 2025 Sessions', start: '2025-06-03T00:00:00', end: '2025-06-03T01:00:00' },
+        { title: 'Elite Prospect Football Camp (June 28)', start: '2025-06-28T12:00:00', end: '2025-06-28T13:00:00' },
+        // July 2025
+        { title: 'July 2025 Session Begins', start: '2025-07-07T00:00:00', end: '2025-07-07T01:00:00' },
+        { title: 'Tuition and Fees Due for July 2025 Session', start: '2025-07-08T00:00:00', end: '2025-07-08T01:00:00' },
+        { title: 'CSI Camp: Finals Week Fatality', start: '2025-07-09T00:00:00', end: '2025-07-09T01:00:00' },
+        { title: 'Varsity/JV Volleyball Team Camp (July 11)', start: '2025-07-11T00:00:00', end: '2025-07-11T01:00:00' },
+        { title: 'Beach Volleyball Skills Camp', start: '2025-07-17T08:30:00', end: '2025-07-17T09:30:00' },
+        { title: 'Beach Volleyball Camp: Pairs Challenge (July 18)', start: '2025-07-18T00:00:00', end: '2025-07-18T01:00:00' },
+        { title: 'Elite Prospect Football Camp (July 19)', start: '2025-07-19T12:00:00', end: '2025-07-19T13:00:00' },
+        { title: '8-Man Team Football Camp (July 20)', start: '2025-07-20T00:00:00', end: '2025-07-20T01:00:00' },
+        { title: '8-Man Team Football Camp (July 21)', start: '2025-07-21T00:00:00', end: '2025-07-21T01:00:00' },
+        { title: '8-Man Team Football Camp (July 22)', start: '2025-07-22T00:00:00', end: '2025-07-22T01:00:00' }
       ],
       eventDidMount: function (info) {
         info.el.addEventListener('mouseenter', function (e) {
@@ -723,6 +743,7 @@ document.addEventListener('DOMContentLoaded', function () {
   fillSchedule('floor2RoomSelect', 'floor2ScheduleBody', floor2Schedule, 'floor2RoomName');
 });
 </script>
+
 
 
 </body>
